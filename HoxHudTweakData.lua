@@ -22,13 +22,13 @@ function HoxHudTweakData:init()
 
 	--these are the extra info boxes that appear in the top right, customise their display behaviour and order as you like.
 	self.pagers_info_box =		{ stealth_only = true,  loud_only = false, hide = false, order = 1 }
-	self.alertedcivs_info_box = { stealth_only = true,  loud_only = false, hide = false, order = 2, hideAtZero = true }
-	self.dom_info_box =			{ stealth_only = false, loud_only = false, hide = false, order = 3, hideAtZero = true }
-	self.jokers_info_box =		{ stealth_only = false, loud_only = false, hide = false, order = 4, hideAtZero = true }
-	self.bodybags_info_box =	{ stealth_only = true,  loud_only = false, hide = false, order = 5, hideAtZero = true }
-	self.sentry_info_box =		{ stealth_only = false, loud_only = false, hide = false, order = 6, hideAtZero = true }
-	self.feedback_info_box =	{ stealth_only = false, loud_only = false, hide = false, order = 7, hideAtZero = true }
-	self.gagemodpack_info_box = { stealth_only = false, loud_only = false, hide = false, order = 8, hideAtZero = true }
+	self.alertedcivs_info_box = { stealth_only = true,  loud_only = false, hide = false, order = 2, hideAtZero = false }
+	self.dom_info_box =			{ stealth_only = false, loud_only = true, hide = false, order = 3, hideAtZero = false }
+	self.jokers_info_box =		{ stealth_only = false, loud_only = true, hide = false, order = 4, hideAtZero = false }
+	self.bodybags_info_box =	{ stealth_only = true,  loud_only = false, hide = false, order = 5, hideAtZero = false }
+	self.sentry_info_box =		{ stealth_only = false, loud_only = true, hide = false, order = 6, hideAtZero = false }
+	self.feedback_info_box =	{ stealth_only = false, loud_only = false, hide = false, order = 7, hideAtZero = false }
+	self.gagemodpack_info_box = { stealth_only = false, loud_only = false, hide = false, order = 8, hideAtZero = false }
 	
 	self.local_strings = { skillprofiler = "Skill Profiler",
 						   skillprofiler_help = "Manage your Skill tree profiles.",
@@ -76,7 +76,7 @@ function HoxHudTweakData:init()
 	
 	self.count_untied_civs = false --if false, pacified civilians are not counted in the infobox but will be recounted if they get back up (unpacified).
 	
-	self.show_interact_circle = false --Set to true if you want to see the interact circle and not just the text countdown
+	self.show_interact_circle = true ----インタラクトサークルを表示するか否か
 	self.set_name_text_color_to_callsign = true --Set to false if you don't want the player's name text colour changed to match their callsign dot.
 	self.disable_interact_timer = false --Set this to true if you want to disable the numeric interaction timer
     self.disable_reload_timer = false -- Set this to true if you want to disable the reload timer
@@ -137,6 +137,7 @@ function HoxHudTweakData:init()
 	self.hit_indicator_fade_duration = 2.4 --Amount of time for the indicator to remain on-screen
 	self.hit_indicator_box_diameter = 384 --Diameter of the box containing the hit indicator circle. Larger numbers will make them rotate around a larger circle.
 	
+	----ディテクションリスクのゲージ
 	self.disable_numeric_suspicion = false --Change to true and the numeric detection percentage will be hidden
 	self.disable_original_suspicion_indicator = false --Change to true if you don't like the bar and just want the numeric
 	self.suspicion_text_min_color = Color("55DDFF") --Color for the text display to be when suspicion is at 0%
