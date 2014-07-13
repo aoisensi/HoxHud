@@ -20,13 +20,15 @@ function HoxHudTweakData:init()
 	self.ANTICHEAT_ONLY = false --SETTING THIS TO TRUE WILL DISABLE ALL HOXHUD ELEMENTS, DO NOT REMOVE CONTENT FROM THIS FILE, JUST SET THIS TO true.
 	self.HUD_ONLY = false --SETTING THIS TO TRUE WILL DISABLE ALL ANTICHEAT ELEMENTS, WE ONLY RECOMMEND USING THIS IF YOU HAVE ISSUES WITH THE ANTICHEAT.
 
+	self.inspect_url = "http://pd2stats.com/stats.php?profiles=%s#skilldata" --URL to load for inspect player. %s is the variable for the user's 64-bit SteamID
+
 	--these are the extra info boxes that appear in the top right, customise their display behaviour and order as you like.
 	self.pagers_info_box =		{ stealth_only = true,  loud_only = false, hide = false, order = 1 }
 	self.alertedcivs_info_box = { stealth_only = true,  loud_only = false, hide = false, order = 2, hideAtZero = false }
-	self.dom_info_box =			{ stealth_only = false, loud_only = true, hide = false, order = 3, hideAtZero = false }
-	self.jokers_info_box =		{ stealth_only = false, loud_only = true, hide = false, order = 4, hideAtZero = false }
+	self.dom_info_box =			{ stealth_only = false, loud_only = false, hide = false, order = 3, hideAtZero = false }
+	self.jokers_info_box =		{ stealth_only = false, loud_only = false, hide = false, order = 4, hideAtZero = false }
 	self.bodybags_info_box =	{ stealth_only = true,  loud_only = false, hide = false, order = 5, hideAtZero = false }
-	self.sentry_info_box =		{ stealth_only = false, loud_only = true, hide = false, order = 6, hideAtZero = false }
+	self.sentry_info_box =		{ stealth_only = false, loud_only = false, hide = false, order = 6, hideAtZero = false }
 	self.feedback_info_box =	{ stealth_only = false, loud_only = false, hide = false, order = 7, hideAtZero = false }
 	self.gagemodpack_info_box = { stealth_only = false, loud_only = false, hide = false, order = 8, hideAtZero = false }
 	
@@ -36,6 +38,8 @@ function HoxHudTweakData:init()
 						   skillprofiler_text = "Select what you would like to do with your Skill Tree Profiles.",
 						   skillprofiler_op_text = "Select Profile to %s",
 						   skillprofiler_del_text = "Are you sure you wish to delete profile %s",
+						   respec_warn_text = "WARNING: Loading this profile will cost %s%s. Are you sure you wish to continue?",
+						   respec_cheaper_text = "NOTICE: Loading this profile will refund you %s%s. Are you sure you wish to continue?",
 						   default_profile_name = "Profile %d",
 						   bootup_profile_name = "Bootup Skills",
 						   profile_ops = { "Load", "Save", "Add Profile", "Del Profile", "Rename" }, --YOU CAN MODIFY TEXT, BUT DO NOT REORDER.
@@ -46,8 +50,10 @@ function HoxHudTweakData:init()
 						   cash_sign = "$",
 						   menu_asset_buy_all_assets = "Buy All Assets",
 						   menu_asset_buy_all_assets_desc = "Buys all the assets that you are permitted to acquire",
+						   inspect_player = "Inspect Player",
+						   inspect_player_help = "Opens the PD2Stats webpage for this player in your Steam Overlay.",
 						 }
-	
+
 	self.phase_map = { build = "build", sustain = "sustain", fade = "fade"}
 
 	self.total_skill_profiles = 5 --Number of profiles to initialize in Skill profiler.
@@ -55,10 +61,28 @@ function HoxHudTweakData:init()
 	--these values control the health ring that appears when you target an NPC
 	self.enemy_health_size = 100
 	self.enemy_health_vertical_offset = 110 --Change this to 15 if you prefer the old location. -400 to hide it.
+	self.enemy_health_horizontal_offset = 0 --Change this to move it left or right from the center. negative values move it left.
 	self.enemy_hurt_color = Color.orange --Color for enemy health ring to flash on a non-fatal hit.
 	self.enemy_kill_color = Color.red --Color for enemy health ring to flash on a fatal hit.
 	self.show_multiplied_enemy_health = true --displays enemy health multiplied by 10 (makes it consistent with weapon stats)
 	self.ignore_civilian_health = true
+	
+	--These values control the damage counter that appears over the head of an enemy when you damage them.
+	self.disable_damage_counter = false --Set this to true if you don't want the in-world damage counters.
+	self.show_damage_per_hit = false --Set to true if you prefer a separate damage text item for every bullet.
+	self.dmg_counter_ignore_civilians = true --Set to false if you want to see the in-world damage counters on civilians.
+	self.normal_hit_color = Color.white --Colour to use while the enemy is still alive.
+	self.fatal_hit_color = Color("FF8400") --Colour to use when the enemy is killed.
+	self.normal_hit_change_per_tick = Vector3(0, 0, 0.1) --Coordinates to add to a normal hit every tick. (the default makes it move upwards slowly)
+	self.fatal_hit_change_per_tick = Vector3(0, 0, 0.5) --Coordinates to add to a fatal hit every tick. (the default makes it move upwards at a medium rate)
+	self.headshot_kill_flash_color = Color.red --Color to flash behind the counter when killed with a headshot.
+	self.hit_display_duration = 3.5 --Time in seconds to display damage counter for.
+	self.unit_offset = Vector3(0, 0, 60) --Offset from the enemy's head in X, Y, Z values. Recommended not to change this.
+	self.workspace_size = {150, 100} --Canvas size for the in-world workspace in width and height respectively. Recommended not to change this.
+	self.text_scaling = 50 --Scaling value for text (size). Recommended not to change this.
+	self.text_font_size = 60 --Original font size to use on text object. Recommended not to change this.
+	self.flash_offset = { -100, -35 } --Offset as X and Y coords for the flashing displayed on a headshot. Recommended not to change this.
+	self.flash_dimensions = { 200, 300 } --Size of the flash object as height and width. Recommended not to change this.
 	
 	local laser_color = Color.green
 	self.weapon_laser_color = { light = laser_color*10, glow = laser_color/5, brush = laser_color:with_alpha(0.05) }
@@ -76,7 +100,7 @@ function HoxHudTweakData:init()
 	
 	self.count_untied_civs = false --if false, pacified civilians are not counted in the infobox but will be recounted if they get back up (unpacified).
 	
-	self.show_interact_circle = true ----インタラクトサークルを表示するか否か
+	self.show_interact_circle = true --Set to true if you want to see the interact circle and not just the text countdown
 	self.set_name_text_color_to_callsign = true --Set to false if you don't want the player's name text colour changed to match their callsign dot.
 	self.disable_interact_timer = false --Set this to true if you want to disable the numeric interaction timer
     self.disable_reload_timer = false -- Set this to true if you want to disable the reload timer
@@ -137,21 +161,23 @@ function HoxHudTweakData:init()
 	self.hit_indicator_fade_duration = 2.4 --Amount of time for the indicator to remain on-screen
 	self.hit_indicator_box_diameter = 384 --Diameter of the box containing the hit indicator circle. Larger numbers will make them rotate around a larger circle.
 	
-	----ディテクションリスクのゲージ
 	self.disable_numeric_suspicion = false --Change to true and the numeric detection percentage will be hidden
 	self.disable_original_suspicion_indicator = false --Change to true if you don't like the bar and just want the numeric
 	self.suspicion_text_min_color = Color("55DDFF") --Color for the text display to be when suspicion is at 0%
 	self.suspicion_text_max_color = Color("FF4400") --Color for the text display to be when suspicion is at 100%
 	self.suspicion_bg_alpha = 0.5 --Alpha value for the black outline
 
+	--The values below align the sniper rifles to the angled sight (if attached and selected). The original values are commented out below, uncomment them to restore original behaviour.
 	self.sniper_angled_sight_rotation    = { }
 	self.sniper_angled_sight_translation = { msr = Vector3(-11, -3, -11), m95 = Vector3(-10.5, -8, -12), r93 = Vector3(-12.5, 7, -11) }
+	--self.sniper_angled_sight_rotation = { msr = Rotation(0), m95 = Rotation(0), r93 = Rotation(0) }
+	--self.sniper_angled_sight_translation = { msr = Vector3(0,0,0), m95 = Vector3(0,0,0), r93 = Rotation(0) }
 
 	--These values map internal names to readable ones that will display on the HUD timer for that particular thing.
 	self.timer_name_map = { lance = "thermal drill", lance_upgrade = "thermal drill", 
 							uload_database = "upload", uload_database_jammed = "upload",
 							votingmachine2 = "vote rigging", hack_suburbia = "hacking",
-							digitalgui = "digital timer", drill = "drill" }
+							digitalgui = "Timelock", drill = "drill", huge_lance = "The Beast" }
 	--Defining a timer item in the table below will result in its timer being placed on the Tab screen instead of the main HUD.
 	self.tab_screen_timers = { drill = 60, lance = 60, lance_upgrade = 60, hack_suburbia = 60, uload_database = 60, uload_database_jammed = 60 }
 	self.timer_text_color = Color.white --Sets the colour of the item's name text
